@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEILVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZWVFIhvj"
+        crossorigin="anonymous"></script>
+<head>
+
+
+</head>
+<meta charset="UTF-8">
+<title>Title</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Manager</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+    body {
+        display: flex;
+        font-family: 'Poppins', Arial, sans-serif;
+        font-size: 20px;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .outer {
+        width: 250px;
+        height: 100%;
+        overflow-y: auto;
+        padding: 10px;
+        box-sizing: border-box;
+        border-right: 1px solid #ccc;
+    }
+
+    #content {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    .button {
+        background-color: #ff0000;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    ul {
+        list-style-type: none;
+        padding-left: 20px;
+    }
+
+    #ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    .caret {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .caret::before {
+        content: "\1F4C1"; /* Unicode for folder emoji */
+        color: #FFD700; /* Gold color for the folder */
+        display: inline-block;
+        margin-right: 5px;
+        font-size: 1.2em;
+    }
+
+    .caret-down::before {
+        content: "\1F4C2"; /* Unicode for open folder emoji */
+    }
+
+    .nested {
+        display: none;
+    }
+
+    .active {
+        display: block;
+    }
+
+    li {
+        margin: 5px 0;
+    }
+
+    /* Styles for the popup */
+    #namePopup, #namePopupFolder {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f2f2f2;
+        padding: 20px;
+        border: 1px solid #ccc;
+        z-index: 1000;
+    }
+
+    /* Additional styles for better usability */
+    input[type="text"], input[type="file"] {
+        margin: 5px 0;
+        padding: 5px;
+    }
+
+    form {
+        margin: 10px 0;
+    }
+
+    /* Style for the breadcrumb navigation */
+    #content > div:nth-child(2) {
+        margin-bottom: 15px;
+    }
+
+    #content > div:nth-child(2) a {
+        color: #0066cc;
+        text-decoration: none;
+    }
+
+    #content > div:nth-child(2) a:hover {
+        text-decoration: underline;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+    /* ... (các styles khác gi? nguyên) ... */
+
+    /* Styles cho container ch?a các nút */
+    .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    /* Style cho các form inline */
+    .inline-form {
+        display: inline;
+    }
+
+    /* Style cho các nút */
+    .button {
+        background-color: #ff0000;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-family: 'Poppins', Arial, sans-serif;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .button:hover {
+        background-color: #cc0000;
+    }
+
+    #breadcrumb {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 16px;
+    }
+
+    #breadcrumb li {
+        display: inline;
+    }
+
+    #breadcrumb li a {
+        text-decoration: none;
+        color: #0066cc;
+        font-weight: bold;
+    }
+
+    #breadcrumb li a:hover {
+        text-decoration: underline;
+    }
+
+    #breadcrumb li > span {
+        margin: 0 5px;
+    }
+
+    .button:disabled {
+        background-color: #6c757d; /* Màu t?i cho nút b? vô hi?u hóa */
+        color: #ffffff; /* Màu ch? sáng ?? d? ??c h?n trên n?n t?i */
+        border: 1px solid #6c757d; /* ???ng vi?n cùng màu v?i n?n */
+        cursor: not-allowed; /* Con tr? chu?t khi di chu?t qua nút b? vô hi?u hóa */
+        opacity: 0.65; /* Làm m? nút ?? th? hi?n tr?ng thái không ho?t ??ng */
+    }
+
+    .caret.selected {
+        font-weight: bold;
+        background-color: #e0e0e0; /* Màu n?n nh? */
+        color: #000; /* Màu ch? ??m */
+    }
+</style>
+</head>
+<body>
+<!--<ul th:each="file : ${files}">-->
+<!--    <li th:text="${file.fileName}"></li>-->
+<!--    ></li>-->
+<!--</ul>-->
+<div class="outer">
+
+
+    <th:block th:fragment="folderTreeItem(folders)">
+        <th:block th:each="folder : ${folders}">
+            <form th:action="@{/getLink}" method="get" th:object="${folder}" class="folder-form">
+                <input type="hidden" name="fid" th:value="${folder.fid}">
+                <span th:class="${!folder.children.empty} ? 'caret' : 'caret'"
+                      th:classappend="${folder.fid == curentFid} ? 'selected' : ''"
+                      th:text="${folder.folderName}"
+                      onclick="handleClick(event, ${folder.fid})"
+                      ondblclick="this.closest('form').submit()"></span>
+                <ul th:if="${!folder.children.empty}" class="nested">
+                    <li th:replace=":: folderTreeItem(${folder.children})"></li>
+                </ul>
+            </form>
+        </th:block>
+    </th:block>
+
+</div>
+<div id="content">
+    <div>
+        <button class="button inline-form" onclick="showPopupFolder()">Create Folder</button>
+        <form th:action="@{/upload}" method="post" enctype="multipart/form-data" class="inline-form">
+            <input type="hidden" id="preid" name="preid" th:value="${curentFid}"/>
+            <input type="hidden" name="typeUpload" id="typeUpload" value="">
+            <input type="file" id="fileInput" name="files" style="display:none;" onchange="this.form.submit()" multiple>
+            <select id="uploadType" onchange="changeUploadType()">
+                <option value="file">Upload File</option>
+                <option value="folder">Upload Folder</option>
+            </select>
+            <button type="button" class="button" onclick="document.getElementById('fileInput').click();">Upload</button>
+        </form>
+        <form id="downloadForm" th:action="@{/downloadfile}" method="get" class="inline-form">
+            <input type="hidden" id="selectedIds" name="ids" value=""/>
+            <button class="button" type="submit" onclick="submitForm()">Download</button>
+        </form>
+        <form id="deleteForm" th:action="@{/deletefile}" method="post" class="inline-form">
+            <input type="hidden" id="selectedDeleteIds" name="ids" value=""/>
+            <input type="hidden" id="selectedDeleteIds1" name="type" value=""/>
+            <input type="hidden" id="preid1" name="preid1" th:value="${curentFid}"/>
+            <button class="button" type="submit" onclick="submitFormDelete()">Delete</button>
+        </form>
+    </div>
+    <ul id="breadcrumb">
+        <li th:each="entry, iterStat : ${link}">
+            <a th:href="@{'/getLink?fid=' + ${entry.key}}" th:text="${entry.value}"></a>
+            <th:block th:if="${iterStat.index < link.size() - 1}"> ></th:block>
+        </li>
+    </ul>
+    <table>
+        <tr>
+            <th>File name</th>
+            <th>Created Time</th>
+            <th>Update Time</th>
+            <th>Edit Name</th>
+        </tr>
+        <tr th:each="file : ${files}">
+            <td>
+                <th:block th:if="${file.type == 'Folder'}">
+                    <input type="checkbox" class="file-checkbox" name="fileIds" th:value="${file.id}">
+                    <input type="hidden" class="file-checkbox1" th:value="${file.type}">
+                    <a th:href="@{'/getLink?fid=' + ${file.id}}" class="folder-link">
+                        <span th:text="${file.itemName}"></span>
+                    </a>
+                </th:block>
+                <th:block th:if="${file.type != 'Folder'}">
+                    <input type="hidden" class="file-checkbox1" th:value="${file.type}">
+                    <input type="checkbox" class="file-checkbox" name="fileIds" th:text="${file.itemName}"
+                           th:value="${file.id}">
+                </th:block>
+            </td>
+
+            <td th:text="${file.createDate}"></td>
+            <td th:text="${file.changeDate}"></td>
+
+            <td>
+                <th:block th:if="${file.type == 'Folder'}">
+                    <button class="button" disabled >Change Name</button>
+                </th:block>
+                <th:block th:if="${file.type != 'Folder'}">
+                    <button class="button" onclick="showPopup()">Change Name</button>
+                </th:block>
+            </td>
+            <div id="namePopup"
+                 style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #f2f2f2; padding: 20px; border: 1px solid #ccc;">
+                <h3>Change Name</h3>
+                <form action="/updateName" method="post">
+                    <input type="hidden" id="fileId" name="fileId" th:value="${file.id}">
+                    <input type="text" id="newName" name="newName" placeholder="New name">
+                    <button type="submit" onclick="updateName()">Save</button>
+                </form>
+                <button onclick="closePopup()">Cancer</button>
+            </div>
+        </tr>
+    </table>
+    <div id="namePopupFolder"
+         style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #f2f2f2; padding: 20px; border: 1px solid #ccc;">
+        <h3>Change Name</h3>
+        <form action="/createFolder" method="post">
+            <input type="hidden" id="folderId" name="folderId" th:value="${curentFid}">
+            <input type="text" id="newNameFolder" name="newNameFolder" placeholder="New name Folder">
+            <button type="submit" onclick="closePopupFolder()">Save</button>
+        </form>
+        <button onclick="closePopupFolder()">Cancer</button>
+    </div>
+    <form th:if="${curentFid != null}" action="/back" method="get">
+        <input type="hidden" id="fidback" name="fidback" th:value="${curentFid}">
+        <button class="button" type="submit">Return to the previous level</button>
+    </form>
+
+</div>
+
+<script>
+
+    function changeUploadType() {
+        var uploadType = document.getElementById('uploadType').value;
+        var fileInput = document.getElementById('fileInput');
+        if (uploadType === 'file') {
+            fileInput.removeAttribute('webkitdirectory');
+            fileInput.removeAttribute('directory');
+            document.getElementById('typeUpload').value='File'
+        } else {
+            fileInput.setAttribute('webkitdirectory', '');
+            fileInput.setAttribute('directory', '');
+            document.getElementById('typeUpload').value='Folder'
+        }
+    }
+
+    function handleClick(event, folderId) {
+        // X? lý click trên ph?n t? folder
+        console.log('Clicked folder ID:', folderId);
+
+        // M? r?ng ho?c thu g?n th? m?c
+        const target = event.currentTarget;
+        target.classList.toggle("caret-down");
+        const nestedList = target.nextElementSibling;
+        if (nestedList && nestedList.classList.contains("nested")) {
+            nestedList.classList.toggle("active");
+        }
+    }
+
+    function submitForm() {
+        var checkboxes = document.getElementsByClassName('file-checkbox');
+        var selectedIds = [];
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                selectedIds.push(checkboxes[i].value);
+            }
+        }
+        if (selectedIds.length > 0) {
+            document.getElementById('selectedIds').value = selectedIds.join(',');
+            document.getElementById('downloadForm').submit();
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = false;
+            }
+        } else {
+            alert('Please select at least one file to download.');
+        }
+    }
+
+    function showPopup() {
+        document.getElementById("namePopup").style.display = "block";
+    }
+
+    function showPopupFolder() {
+        document.getElementById("namePopupFolder").style.display = "block";
+    }
+
+    function closePopupFolder() {
+        document.getElementById("namePopupFolder").style.display = "none";
+    }
+
+
+    function closePopup() {
+        document.getElementById("namePopup").style.display = "none";
+    }
+
+    function updateName() {
+        var newName = document.getElementById("newName").value;
+        document.getElementById("currentName").textContent = newName;
+        closePopup();
+    }
+
+    function submitFormDelete() {
+        var checkboxes = document.getElementsByClassName('file-checkbox');
+        var checkboxes1 = document.getElementsByClassName('file-checkbox1');
+        var selectedIds = [];
+        var selectedIds1 = [];
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                selectedIds.push(checkboxes[i].value);
+            }
+        }
+        selectedIds1.push(checkboxes1[0].value);
+        if (selectedIds.length > 0) {
+            document.getElementById('selectedDeleteIds').value = selectedIds.join(',');
+            document.getElementById('selectedDeleteIds1').value = selectedIds.join(',');
+            document.getElementById('deleteForm').submit();
+        } else {
+            alert('Please select at least one file to delete.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var toggler = document.getElementsByClassName("caret");
+        for (var i = 0; i < toggler.length; i++) {
+            toggler[i].addEventListener("click", function () {
+                this.classList.toggle("caret-down");
+                var nested = this.nextElementSibling;
+                if (nested && nested.classList.contains("nested")) {
+                    nested.classList.toggle("active");
+                }
+            });
+        }
+    });
+
+</script>
+</body>
+</html>
