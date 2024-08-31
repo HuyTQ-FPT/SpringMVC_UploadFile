@@ -111,16 +111,13 @@ public class FolderServiceImpl implements FolderService {
                 if (list != null && !list.isEmpty()) {
                     deleteFile.addAll(list);
                 }
-
+                
                 List<FolderStore> subFolders = folderRepository.getFolder(folderItem.getFid());
                 temp = subFolders;
             }
         }
-
         fileUploadRepository.deleteAll(deleteFile);
-
         folderRepository.deleteAll(deleteFolder);
-
     }
 
     @Override
@@ -131,6 +128,11 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public FolderStore getByNameAndPreId(String folderName, long preid) {
         return folderRepository.checkFolderExist(folderName,preid).get(0);
+    }
+
+    @Override
+    public FolderStore getById(long id) {
+        return folderRepository.findById(id).get();
     }
 
 }

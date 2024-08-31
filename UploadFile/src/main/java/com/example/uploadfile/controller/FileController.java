@@ -38,8 +38,6 @@ public class FileController {
                                    @RequestParam("typeUpload") String type,
                                    Model model) {
         try {
-            System.out.println("typeeeeeeeeeeeeeeeeeee" + type);
-            System.out.println("preidfddddddddddddddddddddd" + preid);
             List<FileStore> fileStoreList = new ArrayList<>();
             for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
@@ -123,30 +121,36 @@ public class FileController {
                              @RequestParam("type") String type,
                              @RequestParam("preid1") long preid1,
                              Model model, HttpServletResponse response) throws IOException {
+
         String[] idArray = ids.split(",");
         if (idArray.length == 0) {
             return "index";
         }
-        if (idArray.length == 1) {
-            if (type.equals("File")) {
-                Long id = Long.parseLong(idArray[0]);
-                fileService.deleteFile(id);
-            } else {
-                folderService.deleteFolder(Long.parseLong(idArray[0]));
-            }
-
-        } else {
-            for (String idStr : idArray) {
+        try {
+            System.out.println("type==================" + type);
+            System.out.println("ids==================" + ids);
+            if (idArray.length == 1) {
                 if (type.equals("File")) {
-                    Long id = Long.parseLong(idStr);
+                    Long id = Long.parseLong(idArray[0]);
                     fileService.deleteFile(id);
                 } else {
-                    folderService.deleteFolder(Long.parseLong(idStr));
+                    folderService.deleteFolder(Long.parseLong(idArray[0]));
                 }
+            } else {
+                for (String idStr : idArray) {
+                    if (type.equals("File")) {
+                        Long id = Long.parseLong(idStr);
+                        fileService.deleteFile(id);
+                    } else {
+                        folderService.deleteFolder(Long.parseLong(idStr));
+                    }
 
+                }
             }
+        } catch (Exception e) {
+            return "redirect:/";
         }
         return "redirect:/getLink?fid=" + preid1;
-    }
 
+    }
 }

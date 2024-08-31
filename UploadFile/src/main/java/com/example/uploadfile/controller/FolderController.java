@@ -31,6 +31,6 @@ public class FolderController {
         } catch (Exception e) {
             model.addAttribute("message", "folder create failed: " + e.getMessage());
         }
-        return "redirect:/getLink?fid=" + folderId;
+        return folderId!=0L? "redirect:/getLink?fid=" + folderId : "redirect:/";
     }
 }

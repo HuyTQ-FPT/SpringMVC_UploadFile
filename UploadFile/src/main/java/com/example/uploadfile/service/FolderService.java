@@ -25,4 +25,6 @@ public interface FolderService {
 
     FolderStore getByNameAndPreId(String folderName, long preid);
 
+    FolderStore getById(long id);
+
 }

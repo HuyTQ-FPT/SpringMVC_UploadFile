@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class HomeController {
@@ -86,7 +83,7 @@ public class HomeController {
     public String getFileByFolder(@RequestParam("fid") List<Long> fid,Model model) {
         List<FolderStore> listfolder = new ArrayList<>();
         List<Item> fileStoreList = new ArrayList<>();
-        HashMap<Long, String> link = new HashMap<>();
+        TreeMap<Long, String> link = new TreeMap<>();
         listfolder = folderService.getFolderLink(fid.get(fid.size()-1));
         fileStoreList=fileService.getFile(fid.get(fid.size()-1) );
         for (FolderStore folder : listfolder) {
@@ -103,22 +100,26 @@ public class HomeController {
 
     @GetMapping ("/back")
     public String back(@RequestParam("fidback") long fid,Model model) {
-        List<Item> fileStoreList = new ArrayList<>();
-        List<FolderStore> listfolder = new ArrayList<>();
-        long preFid=folderService.getFilePre(fid);
-        fileStoreList=fileService.getFile(preFid);
-        List<FolderStore> allFolders = folderService.getFolder();
-        List<FolderStoreDto> rootFolders = buildFolderTree(allFolders);
-        HashMap<Long, String> link = new HashMap<>();
-        listfolder = folderService.getFolderLink(preFid);
-        for (FolderStore folder : listfolder) {
-            link.put(folder.getFid(), folder.getFolderName());
+        try {
+            List<Item> fileStoreList = new ArrayList<>();
+            List<FolderStore> listfolder = new ArrayList<>();
+            long preFid = folderService.getFilePre(fid);
+            fileStoreList = fileService.getFile(preFid);
+            List<FolderStore> allFolders = folderService.getFolder();
+            List<FolderStoreDto> rootFolders = buildFolderTree(allFolders);
+            TreeMap<Long, String> link = new TreeMap<>();
+            listfolder = folderService.getFolderLink(preFid);
+            for (FolderStore folder : listfolder) {
+                link.put(folder.getFid(), folder.getFolderName());
+            }
+            model.addAttribute("folders", rootFolders);
+            model.addAttribute("files", fileStoreList);
+            model.addAttribute("link", link);
+            model.addAttribute("curentFid", listfolder.get(0).getFid());
+            return "index";
+        }catch (Exception e){
+            return "redirect:/";
         }
-        model.addAttribute("folders", rootFolders);
-        model.addAttribute("files", fileStoreList);
-        model.addAttribute("link", link);
-        model.addAttribute("curentFid", listfolder.get(0).getFid());
-        return "index";
     }
 
     @PostMapping("/updateName")
@@ -132,7 +133,7 @@ public class HomeController {
         }
         List<FolderStore> listfolder = new ArrayList<>();
         List<Item> fileStoreList = new ArrayList<>();
-        HashMap<Long, String> link = new HashMap<>();
+        TreeMap<Long, String> link = new TreeMap<>();
         listfolder = folderService.getFolderLink(optionalFile.getFolderId());
         fileStoreList=fileService.getFile(optionalFile.getFolderId());
         for (FolderStore folder : listfolder) {
