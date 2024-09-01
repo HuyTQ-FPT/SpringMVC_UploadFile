@@ -256,7 +256,7 @@
         </form>
         <form id="deleteForm" th:action="@{/deletefile}" method="post" class="inline-form">
             <input type="hidden" id="selectedDeleteIds" name="ids" value=""/>
-            <input type="hidden" id="selectedDeleteIds1" name="type" value=""/>
+            <input type="hidden" id="types" name="types" value=""/>
             <input type="hidden" id="preid1" name="preid1" th:value="${curentFid}"/>
             <button class="button" type="submit" onclick="submitFormDelete()">Delete</button>
         </form>
@@ -411,14 +411,15 @@
                 selectedIds.push(checkboxes[i].value);
             }
         }
+        console.log(checkboxes1)
         for (var i = 0; i < checkboxes1.length; i++) {
-            if (checkboxes1[i].checked) {
+            if (checkboxes[i].checked) {
                 selectedIds1.push(checkboxes1[i].value);
             }
         }
         if (selectedIds.length > 0) {
             document.getElementById('selectedDeleteIds').value = selectedIds.join(',');
-            document.getElementById('selectedDeleteIds1').value = selectedIds1.join(',');
+            document.getElementById('types').value = selectedIds1.join(',');
             document.getElementById('deleteForm').submit();
         } else {
             alert('Please select at least one file to delete.');

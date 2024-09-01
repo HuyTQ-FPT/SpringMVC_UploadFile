@@ -101,7 +101,7 @@ public class FolderServiceImpl implements FolderService {
         List<FileStore> deleteFile = new ArrayList<>();
 
         deleteFolder.add(folder);
-        List<FolderStore> temp = folderRepository.getFolder(folder.getPreFolder());
+        List<FolderStore> temp = folderRepository.getFolder(folder.getFid());
 
         while (temp != null && !temp.isEmpty()) {
             for (FolderStore folderItem : temp) {

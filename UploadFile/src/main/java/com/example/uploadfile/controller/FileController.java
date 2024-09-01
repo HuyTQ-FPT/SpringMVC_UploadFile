@@ -38,6 +38,8 @@ public class FileController {
                                    @RequestParam("typeUpload") String type,
                                    Model model) {
         try {
+            System.out.println("type==================" + preid);
+            System.out.println("ids==================" + type);
             List<FileStore> fileStoreList = new ArrayList<>();
             for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
@@ -118,31 +120,35 @@ public class FileController {
 
     @PostMapping("/deletefile")
     public String deleteFile(@RequestParam("ids") String ids,
-                             @RequestParam("type") String type,
+                             @RequestParam("types") String type,
                              @RequestParam("preid1") long preid1,
                              Model model, HttpServletResponse response) throws IOException {
-
+        System.out.println("type==================" + type);
+        System.out.println("ids==================" + ids);
+        System.out.println("preid1==================" + preid1);
         String[] idArray = ids.split(",");
         if (idArray.length == 0) {
             return "index";
         }
+        String[] idArrayFileName = type.split(",");
+        if (idArrayFileName.length == 0) {
+            return "index";
+        }
         try {
-            System.out.println("type==================" + type);
-            System.out.println("ids==================" + ids);
             if (idArray.length == 1) {
-                if (type.equals("File")) {
+                if (idArrayFileName[0].equals("File")) {
                     Long id = Long.parseLong(idArray[0]);
                     fileService.deleteFile(id);
                 } else {
                     folderService.deleteFolder(Long.parseLong(idArray[0]));
                 }
             } else {
-                for (String idStr : idArray) {
-                    if (type.equals("File")) {
-                        Long id = Long.parseLong(idStr);
+                for (int  i=0; i< idArray.length ;i++ ) {
+                    if (idArrayFileName[i].equals("File")) {
+                        Long id = Long.parseLong(idArray[i]);
                         fileService.deleteFile(id);
                     } else {
-                        folderService.deleteFolder(Long.parseLong(idStr));
+                        folderService.deleteFolder(Long.parseLong(idArray[i]));
                     }
 
                 }
