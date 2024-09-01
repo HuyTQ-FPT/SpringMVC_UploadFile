@@ -42,27 +42,7 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public List<FolderStoreDto> createFolderStructure() {
-//        List<List<FolderStoreDto>> root = new ArrayList<List<FolderStoreDto>>();
-//        List<FolderStore> temp = new ArrayList<>();
-//        List<FolderStore> tree = new ArrayList<>();
-//        tree = folderRepository.getRootFolder();
-//        boolean endTree = true;
-//        for (FolderStore folder : tree) {
-//            temp = folderRepository.getFolder(folder.getId()).stream().map((tempFolder) -> mapToFolderStoreDto(tempFolder, new ArrayList<FolderStoreDto>())).collect(Collectors.toList());
-//            if (!temp.isEmpty() || temp != null) {
-//                folder.setFolderChildren(temp);
-//                while (endTree) {
-//                    for (FolderStoreDto child : temp) {
-//                        temp = folderRepository.getFolder(child.getId()).stream().map((tempFolder) -> mapToFolderStoreDto(tempFolder, new ArrayList<FolderStoreDto>())).collect(Collectors.toList());
-//                        if (!temp.isEmpty() || temp != null) {
-//                            child.setFolderChildren(temp);
-//                        }else{
-//                            endTree=false;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+
         return null;
     }
 

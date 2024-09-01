@@ -26,15 +26,6 @@ public class HomeController {
         this.folderService = folderService;
     }
 
-//    @GetMapping ("/")
-//    public String home(Model model) {
-//        List<FolderStore> listfolder = new ArrayList<>();
-//        List<Item> fileStoreList = new ArrayList<>();
-//        listfolder=folderService.getFolder();
-//        model.addAttribute("files", fileStoreList);
-//        model.addAttribute("folders", listfolder);
-//        return "index";
-//    }
     @GetMapping("/")
     public String showFolders(Model model) {
         List<FolderStore> allFolders = folderService.getFolder();

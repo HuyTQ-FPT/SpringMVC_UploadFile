@@ -38,8 +38,6 @@ public class FileController {
                                    @RequestParam("typeUpload") String type,
                                    Model model) {
         try {
-            System.out.println("type==================" + preid);
-            System.out.println("ids==================" + type);
             List<FileStore> fileStoreList = new ArrayList<>();
             for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
@@ -123,9 +121,6 @@ public class FileController {
                              @RequestParam("types") String type,
                              @RequestParam("preid1") long preid1,
                              Model model, HttpServletResponse response) throws IOException {
-        System.out.println("type==================" + type);
-        System.out.println("ids==================" + ids);
-        System.out.println("preid1==================" + preid1);
         String[] idArray = ids.split(",");
         if (idArray.length == 0) {
             return "index";
